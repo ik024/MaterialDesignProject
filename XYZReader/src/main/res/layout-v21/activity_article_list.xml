@@ -17,7 +17,8 @@
             android:layout_gravity="bottom|center_horizontal"
             android:contentDescription="@string/app_name"
             android:src="@drawable/logo"
-            android:visibility="visible" />
+            android:visibility="visible"
+            android:transitionName="@string/image_transition_name"/>
     </LinearLayout>
 
 
