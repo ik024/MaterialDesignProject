@@ -22,6 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
+            android:transitionName="@string/image_transition_name"
             android:background="@color/photo_placeholder" />
 
         <TextView

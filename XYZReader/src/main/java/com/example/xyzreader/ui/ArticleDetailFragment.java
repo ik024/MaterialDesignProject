@@ -2,21 +2,25 @@ package com.example.xyzreader.ui;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
-import android.text.Spanned;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.Article;
 
@@ -28,8 +32,7 @@ import java.util.List;
  * either contained in a {@link ArticleListActivity} in two-pane mode (on
  * tablets) or a {@link ArticleDetailActivity} on handsets.
  */
-public class ArticleDetailFragment extends Fragment
-         {
+public class ArticleDetailFragment extends Fragment {
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
@@ -68,7 +71,7 @@ public class ArticleDetailFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ARTICLE)){
+        if (getArguments().containsKey(ARG_ARTICLE)) {
             mArticle = getArguments().getParcelable(ARG_ARTICLE);
         }
 
@@ -86,18 +89,21 @@ public class ArticleDetailFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
-        mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
+
+        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.app_bar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
-                        .setType("text/plain")
-                        .setText("Some sample text")
-                        .getIntent(), getString(R.string.action_share)));
+            public void onClick(View v) {
+                getActivity().onBackPressed();
             }
         });
 
@@ -111,6 +117,7 @@ public class ArticleDetailFragment extends Fragment
         }
         mRecycleView = (RecyclerView) mRootView.findViewById(R.id.rv_body_text);
         mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
         CollapsingToolbarLayout ctb = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_tool_bar);
 
@@ -118,12 +125,22 @@ public class ArticleDetailFragment extends Fragment
 
         if (mArticle != null) {
 
+            mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
+                            .setType(mArticle.getTitle())
+                            .setText(mArticle.getBody().substring(0,
+                                    mArticle.getBody().length() > 1000 ? 1000 : mArticle.getBody().length()))
+                            .getIntent(), getString(R.string.action_share)));
+                }
+            });
+
             ctb.setTitle(mArticle.getTitle());
 
-            //bodyView.setText(mArticle.getBody().substring(0, 10000));
-            parseHTMLTestAsyncAndSetText(bodyView);
+            parseHTMLTextAsyncAndSetText();
 
-            /*ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
+            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mArticle.getPhotoUrl(), new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
@@ -137,23 +154,19 @@ public class ArticleDetailFragment extends Fragment
                         public void onErrorResponse(VolleyError volleyError) {
 
                         }
-                    });*/
+                    });
         } else {
             mRootView.setVisibility(View.GONE);
             bodyView.setText("Loading. Please wait...");
         }
     }
 
-    private void parseHTMLTestAsyncAndSetText(final TextView view){
-        new AsyncTask<Void, Void, List<String>>(){
+
+    private void parseHTMLTextAsyncAndSetText() {
+        new AsyncTask<Void, Void, List<String>>() {
 
             @Override
             protected List<String> doInBackground(Void... params) {
-                //Log.d("body", "body length: "+mArticle.getBody().length());
-                //return Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />"));
-                //Spanned spanned = Html.fromHtml(mArticle.getBody().replaceAll("(\r\n|\n)", "|"));
-                //String[] paras = mArticle.getBody().toString().split("\n\n");
-                //Log.d("paras", "paras length: "+paras.length);
                 String[] paras = mArticle.getBody().toString().split("\r\n");
                 return Arrays.asList(paras);
             }
@@ -167,6 +180,8 @@ public class ArticleDetailFragment extends Fragment
                 } else {
                     mAdapter.updateList(bodyTextList);
                 }
+
+
             }
         }.execute();
     }
