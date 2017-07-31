@@ -97,8 +97,6 @@ public class ArticleDetailFragment extends Fragment {
 
         Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.app_bar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,10 +116,9 @@ public class ArticleDetailFragment extends Fragment {
         mRecycleView = (RecyclerView) mRootView.findViewById(R.id.rv_body_text);
         mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
         CollapsingToolbarLayout ctb = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_tool_bar);
 
-        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
+        //bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mArticle != null) {
 
@@ -157,7 +154,6 @@ public class ArticleDetailFragment extends Fragment {
                     });
         } else {
             mRootView.setVisibility(View.GONE);
-            bodyView.setText("Loading. Please wait...");
         }
     }
 

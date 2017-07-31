@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,7 @@ class BodyTextAdapter extends RecyclerView.Adapter<BodyTextAdapter.MyViewHolder>
         MyViewHolder(View itemView) {
             super(itemView);
             mTvBody = (TextView) itemView.findViewById(R.id.tv_item_body_text);
+            mTvBody.setTypeface(Typeface.createFromAsset(itemView.getContext().getResources().getAssets(), "Rosario-Regular.ttf"));
         }
 
         public void setBodyText(String text){
